@@ -17,6 +17,6 @@ statuses = ["pending", "won", "lost"]
     name: "Deal #{i}",
     status: statuses.sample,
     amount: rand(10..1000),
-    company_id: Company.order("RAND()").first.id
+    company_id: Company.order("RANDOM()").first.id
   )
 end

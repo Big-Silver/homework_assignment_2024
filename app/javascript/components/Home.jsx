@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from 'axios';
 
 export default () => {
   // List of fetched companies
@@ -10,15 +11,31 @@ export default () => {
   const [minEmployee, setMinEmployee] = useState("");
   const [minimumDealAmount, setMinimumDealAmount] = useState("");
 
+  const payload = {
+    company_name: companyName,
+    industry: industry,
+    min_employee: minEmployee,
+    minimum_deal_amount: minimumDealAmount
+  }
+
+  // Applying filters
+  const applyFilter = () => {
+    fetchCompanies();
+  }
+
+  // Fetch companies callback
+  const fetchCompanies = () => {
+    axios.get(
+      '/api/v1/companies',
+      { params: payload }
+    )
+    .then(res => {
+      setCompanies(res?.data?.data)
+    })
+  }
+
   // Fetch companies from API
-  useEffect(() => {
-    const url = "/api/v1/companies";
-    fetch(url)
-      .then((res) => {
-        return res.json();
-      })
-      .then((res) => setCompanies(res))
-  }, [])
+  useEffect(() => { fetchCompanies() }, [])
 
   return (
     <div className="vw-100 primary-color d-flex align-items-center justify-content-center">
@@ -38,13 +55,15 @@ export default () => {
 
           <label htmlFor="min-employee">Minimum Employee Count</label>
           <div className="input-group mb-3">
-            <input type="text" className="form-control" id="min-employee" value={minEmployee} onChange={e => setMinEmployee(e.target.value)} />
+            <input type="number" className="form-control" id="min-employee" value={minEmployee} onChange={e => setMinEmployee(e.target.value)} />
           </div>
 
           <label htmlFor="min-amount">Minimum Deal Amount</label>
           <div className="input-group mb-3">
-            <input type="text" className="form-control" id="min-amount" value={minimumDealAmount} onChange={e => setMinimumDealAmount(e.target.value)} />
+            <input type="number" className="form-control" id="min-amount" value={minimumDealAmount} onChange={e => setMinimumDealAmount(e.target.value)} />
           </div>
+
+          <button type="button" className="btn-primary" onClick={ () => applyFilter() }>Filter</button>
 
           <table className="table">
             <thead>
@@ -58,10 +77,10 @@ export default () => {
             <tbody>
               {companies.map((company) => (
                 <tr key={company.id}>
-                  <td>{company.name}</td>
-                  <td>{company.industry}</td>
-                  <td>{company.employee_count}</td>
-                  <td>{company.deals.reduce((sum, deal) => sum + deal.amount, 0)}</td>
+                  <td>{company.attributes.name}</td>
+                  <td>{company.attributes.industry}</td>
+                  <td>{company.attributes.employee_count}</td>
+                  <td>{company.attributes.deals_amount}</td>
                 </tr>
               ))}
             </tbody>
